@@ -42,6 +42,13 @@ func NewPointForPub(pub []byte) *Point {
 	return &Point{x, y}
 }
 
+// Bytes returns compress point bytes.
+func (p *Point) Bytes() []byte {
+	bs := make([]byte, 1)
+	bs[0] = byte(0x02 + y(p).Bit(0))
+	return ll(bs, bytes(x(p)))
+}
+
 // infinite(P) returns whether or not P is the point at infinity.
 func infinite(P *Point) bool {
 	if y(P) == nil || y(P).Cmp(big.NewInt(0)) == 0 {
@@ -146,11 +153,7 @@ func bytes(x *big.Int) []byte {
 }
 
 // The function bytes(P), where P is a point, returns byte(0x02 + (y(P) & 1)) || bytes(x(P)).
-func bytesP(P *Point) []byte {
-	bs := make([]byte, 1)
-	bs[0] = byte(0x02 + y(P).Bit(0))
-	return ll(bs, bytes(x(P)))
-}
+// Point#Bytes()
 
 // The function int(x), where x is a 32 byte array, returns the 256-bit unsigned integer whose most significant byte encoding is x.
 func intbs(x []byte) *big.Int {
@@ -199,7 +202,7 @@ func Verification(P *Point, m []byte, sig []byte) bool {
 		return false
 	}
 	// Let e = int(hash(bytes(r) || bytes(P) || m)) mod n.
-	e := intbs(hash(ll(bytes(r), bytesP(P), m)))
+	e := intbs(hash(ll(bytes(r), P.Bytes(), m)))
 	// Let R = sG - eP.
 	R := pointAdd(pointMul(s, G), pointMul(mod(sub(n, e), n), P))
 	// Fail if infinite(R) or jacobi(y(R)) ≠ 1 or x(R) ≠ r.
@@ -231,7 +234,7 @@ func Signing(d *big.Int, m []byte) []byte {
 		k = sub(n, k)
 	}
 	// Let e = int(hash(bytes(x(R)) || bytes(dG) || m)) mod n.
-	e := mod(intbs(hash(ll(bytes(x(R)), bytesP(pointMul(d, G)), m))), n)
+	e := mod(intbs(hash(ll(bytes(x(R)), pointMul(d, G).Bytes(), m))), n)
 	// The signature is bytes(x(R)) || bytes(k + ed mod n).
 	return ll(bytes(x(R)), bytes(mod(add(k, mul(e, d)), n)))
 }
