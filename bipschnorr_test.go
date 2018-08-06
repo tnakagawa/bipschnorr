@@ -1,7 +1,7 @@
 package bipschnorr_test
 
 import (
-	"bipschnorr"
+	"github.com/tnakagawa/bipschnorr"
 
 	"encoding/hex"
 	"math/big"
