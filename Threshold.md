@@ -1,6 +1,6 @@
 # Threshold Signatures
 
-This sentence is a procedure for k-of-n threshold signatures to the following URL.
+This text is a procedure for k-of-n threshold signatures.
 
 The symbols and functions used are defined in the following URL.
 
