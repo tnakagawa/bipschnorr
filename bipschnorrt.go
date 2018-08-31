@@ -377,7 +377,6 @@ func (user *Tuser) Signature() *big.Int {
 	}
 	sig = mod(add(k, mul(e, sig)), n)
 	idx := user.sidx(i)
-	fmt.Printf("Set Sig %d %d %x\n", user.Idx(), idx, sig)
 	user.sigs[idx] = sig
 	return sig
 }
