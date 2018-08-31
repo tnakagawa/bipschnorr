@@ -124,14 +124,14 @@ Each user(u<sub>i</sub> , i = 1...t) verifies signature received from user(u<sub
 
 - Let B be the point at infinity
 - For h = 1...t :
-    - B = B + B<sub>u<sub>h</sub>0</sub>j<sup>0</sup> + ... + B<sub>u<sub>h</sub>(t-1)</sub>j<sup>t-1</sup>
+    - B = B + j<sup>0</sup>B<sub>u<sub>h</sub>0</sub> + ... + j<sup>t-1</sup>B<sub>u<sub>h</sub>(t-1)</sub>
 - Let R = B<sub>u<sub>1</sub>0</sub> + ... + B<sub>u<sub>t</sub>0</sub>
 - If jacobi(y(R)) &ne; 1 , let B = -B
 - Let P = A<sub>10</sub> + ... + A<sub>k0</sub>
 - Let e = int(hash(bytes(x(R)) || bytes(P) || m)) mod n
 - Let A be the point at infinity
 - For h = 1...k :
-    - A = A + A<sub>u<sub>h</sub>0</sub>j<sup>0</sup> + ... + A<sub>u<sub>h</sub>(t-1)</sub>j<sup>t-1</sup>
+    - A = A + j<sup>0</sup>A<sub>u<sub>h</sub>0</sub> + ... + j<sup>t-1</sup>A<sub>u<sub>h</sub>(t-1)</sub>
 - Fail if sig<sub>u<sub>j</sub></sub>G &ne; B + eA
 - If fail , sends result to other user(u<sub>h</sub> , h = 1...t , h &ne; i).
 
