@@ -185,8 +185,8 @@ func (user *Tuser) SharedPublickey() *Point {
 	return pub
 }
 
-// SetCollaborators sets collaborators.
-func (user *Tuser) SetCollaborators(ts []int) error {
+// SetSigners sets signers.
+func (user *Tuser) SetSigners(ts []int) error {
 	// TODO validate parameter
 	user.ts = ts
 	// if len(ts) == 1 {
@@ -196,8 +196,8 @@ func (user *Tuser) SetCollaborators(ts []int) error {
 	return nil
 }
 
-// cidx returns index of collaborators.
-func (user *Tuser) cidx(j int) int {
+// sidx returns index of signers.
+func (user *Tuser) sidx(j int) int {
 	idx := -1
 	for i, t := range user.ts {
 		if j == t {
@@ -210,7 +210,7 @@ func (user *Tuser) cidx(j int) int {
 
 // RandomCommitments returns commitments of random point.
 func (user *Tuser) RandomCommitments() []*Point {
-	i := user.cidx(user.i)
+	i := user.sidx(user.i)
 	if i < 0 {
 		return nil
 	}
@@ -237,7 +237,7 @@ func (user *Tuser) RandomCommitments() []*Point {
 // SetRandomCommitments sets commitments of random point for user(j).
 func (user *Tuser) SetRandomCommitments(j int, Cd []*Point) error {
 	// TODO validate parameters
-	idx := user.cidx(j)
+	idx := user.sidx(j)
 	if idx < 0 {
 		return fmt.Errorf("not found user(%d)", j)
 	}
@@ -269,7 +269,7 @@ func (user *Tuser) OtherRandomCommitments(j int) [][]*Point {
 // SetRandomNumber a
 func (user *Tuser) SetRandomNumber(j int, r, rd *big.Int, ocds [][]*Point) error {
 	// TODO validate parameters
-	idx := user.cidx(j)
+	idx := user.sidx(j)
 	if idx < 0 {
 		return nil
 	}
@@ -302,7 +302,7 @@ func (user *Tuser) SetRandomNumber(j int, r, rd *big.Int, ocds [][]*Point) error
 
 // RandomPoints returns random points.
 func (user *Tuser) RandomPoints() []*Point {
-	i := user.cidx(user.i)
+	i := user.sidx(user.i)
 	if i < 0 {
 		return nil
 	}
@@ -321,7 +321,7 @@ func (user *Tuser) RandomPoints() []*Point {
 // SetRandomPoints verifies and sets random points.
 func (user *Tuser) SetRandomPoints(j int, Bs []*Point) error {
 	// TODO validate parameters
-	idx := user.cidx(j)
+	idx := user.sidx(j)
 	if idx < 0 {
 		return nil
 	}
@@ -376,7 +376,7 @@ func (user *Tuser) Signature() *big.Int {
 		sig = mod(add(sig, s), n)
 	}
 	sig = mod(add(k, mul(e, sig)), n)
-	idx := user.cidx(i)
+	idx := user.sidx(i)
 	fmt.Printf("Set Sig %d %d %x\n", user.Idx(), idx, sig)
 	user.sigs[idx] = sig
 	return sig
@@ -385,7 +385,7 @@ func (user *Tuser) Signature() *big.Int {
 // SetSignature verifies and sets signature for user(j).
 func (user *Tuser) SetSignature(j int, sig *big.Int) error {
 	// TODO check internal variable
-	idx := user.cidx(j)
+	idx := user.sidx(j)
 	if idx < 0 {
 		return fmt.Errorf("not found user(%d)", j)
 	}

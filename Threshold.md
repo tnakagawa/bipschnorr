@@ -1,6 +1,6 @@
 # Threshold Signatures
 
-This text is a procedure for k-of-n threshold signatures.
+This text is a procedure for t-of-k threshold signatures.
 
 The symbols and functions used are defined in the following URL.
 
@@ -9,29 +9,31 @@ https://github.com/sipa/bips/blob/bip-schnorr/bip-schnorr.mediawiki
 ## Introduction
 
 - The number of users k.
-- The number of collaborators t. ( 0 < t &le; k )
+- The number of required signers t. ( 0 < t &le; k )
 - The constant H refers to the generator. ( G &ne; H )
     - Let H = xG , x mod n , x is random.
 - The message m : an array of 32 bytes
 
 The n , G and functions are cited from the original text.
 
+Each user i(i = 1...k) is in an agreed ordered set so that user i is always the same for every user.
+
 ## Shared Secret
 
 ### Step 1
 
-Each user(i = 1...k) sends commitments of shared secret :
+Each user i(i = 1...k) sends t commitments to a set of random numbers:
 
-- Let random numbers a<sub>i0</sub>...a<sub>i(t-1)</sub> and a'<sub>i0</sub>...a'<sub>i(t-1)</sub> in the range 1...n-1 , t*2 integers.
+- Let there be random numbers a<sub>i0</sub>...a<sub>i(t-1)</sub> and a'<sub>i0</sub>...a'<sub>i(t-1)</sub> in the range 1...n-1 , 2t integers.
 - Let the sharing polynomials be f<sub>i</sub>(x) and f'<sub>i</sub>(x)
     - f<sub>i</sub>(x) = a<sub>i0</sub> + a<sub>i1</sub>x<sup>1</sup> + ... + a<sub>i(t-1)</sub>x<sup>t-1</sup>
     - f'<sub>i</sub>(x) = a'<sub>i0</sub> + a'<sub>i1</sub>x<sup>1</sup> + ... + a'<sub>i(t-1)</sub>x<sup>t-1</sup>
 - Let the commitments be C<sub>i0</sub>...C<sub>i(t-1)</sub> : C<sub>ih</sub> = a<sub>ih</sub>G + a'<sub>ih</sub>H (h = 0...t-1).
-- The user(i) sends commitments(C<sub>i0</sub>...C<sub>i(t-1)</sub>) to other users(j = 1...k , j &ne; i).
+- The user(i) sends commitments(C<sub>i0</sub>...C<sub>i(t-1)</sub>) to the other users(j = 1...k , j &ne; i).
 
 ### Step 2
 
-Each user(i = 1...k) sends shared secret and other user's commitments :
+Each user(i = 1...k) sends shared secrets and the other users' commitments to each other user:
 
 - For j = 1...k , j &ne; i :
     - Let s<sub>ij</sub> = f<sub>i</sub>(j) mod n , s'<sub>ij</sub> = f'<sub>i</sub>(j)  mod n
@@ -61,23 +63,23 @@ The **publickey** of shared secret is sum of each 0-th points. : P = A<sub>10</s
 
 ## Signing
 
-- The collaborator t users(u<sub>i</sub> , i = 1...t) .
+- The t users participating in the signing process(u<sub>i</sub> , i = 1...t) .
 - 1 &le; u<sub>i</sub> &le; k , i = 1...t ; u<sub>i1</sub> &ne; u<sub>i2</sub> , i1 &ne; i2 , 1 &le; i1 &le; t , 1 &le; i2 &le; t .
 
 ### Step 1
 
-Each user(u<sub>i</sub> , i = 1...t) sends commitments of random point :
+Each user u<sub>i</sub>(u<sub>i</sub> , i = 1...t) sends t commitments to a set of random numbers :
 
-- Let random numbers b<sub>u<sub>i</sub>0</sub>...b<sub>u<sub>i</sub>(t-1)</sub> and b'<sub>u<sub>i</sub>0</sub>...b'<sub>u<sub>i</sub>(t-1)</sub> in the range 1...n-1 , t*2 integers.
+- Let there be random numbers b<sub>u<sub>i</sub>0</sub>...b<sub>u<sub>i</sub>(t-1)</sub> and b'<sub>u<sub>i</sub>0</sub>...b'<sub>u<sub>i</sub>(t-1)</sub> in the range 1...n-1 , 2t integers.
 - Let the sharing polynomials be g<sub>u<sub>i</sub></sub>(x) and g'<sub>u<sub>i</sub></sub>(x)
     - g<sub>u<sub>i</sub></sub>(x) = b<sub>u<sub>i</sub>0</sub> + b<sub>u<sub>i</sub>1</sub>x<sup>1</sup> + ... + b<sub>u<sub>i</sub>(t-1)</sub>x<sup>t-1</sup>
     - g'<sub>u<sub>i</sub></sub>(x) = b'<sub>u<sub>i</sub>0</sub> + b'<sub>u<sub>i</sub>1</sub>x<sup>1</sup> + ... + b'<sub>u<sub>i</sub>(t-1)</sub>x<sup>t-1</sup>
 - Let the commitments be C'<sub>u<sub>i</sub>0</sub>...C'<sub>u<sub>i</sub>(t-1)</sub> : C'<sub>u<sub>i</sub>h</sub> = b<sub>u<sub>i</sub>h</sub>G + b'<sub>u<sub>i</sub>h</sub>H (h = 0...t-1).
-- The user(u<sub>i</sub>) sends commitments(C'<sub>u<sub>i</sub>0</sub>...C'<sub>u<sub>i</sub>(t-1)</sub>) to other users(u<sub>j</sub> , j = 1...t , j &ne; i).
+- The user(u<sub>i</sub>) sends commitments(C'<sub>u<sub>i</sub>0</sub>...C'<sub>u<sub>i</sub>(t-1)</sub>) to the other users(u<sub>j</sub> , j = 1...t , j &ne; i).
 
 ### Step 2
 
-Each user(u<sub>i</sub> , i = 1...t) sends random number and other user's commitments :
+Each user(u<sub>i</sub> , i = 1...t) sends random numbers and the other user's commitments to each other user :
 
 - For j = 1...t , j &ne; i :
     - Let r<sub>u<sub>i</sub>u<sub>j</sub></sub> = g<sub>u<sub>i</sub></sub>(u<sub>j</sub>) mod n , r'<sub>u<sub>i</sub>u<sub>j</sub></sub> = g'<sub>u<sub>i</sub></sub>(u<sub>j</sub>)  mod n
@@ -120,14 +122,14 @@ Each user(u<sub>i</sub> , i = 1...t) sends signature :
 
 Each user(u<sub>i</sub> , i = 1...t) verifies signature received from user(u<sub>j</sub> , j = 1...t , j &ne; i) :
 
-- Let B is Point
+- Let B be the point at infinity
 - For h = 1...t :
     - B = B + B<sub>u<sub>h</sub>0</sub>j<sup>0</sup> + ... + B<sub>u<sub>h</sub>(t-1)</sub>j<sup>t-1</sup>
 - Let R = B<sub>u<sub>1</sub>0</sub> + ... + B<sub>u<sub>t</sub>0</sub>
-- If jacobi(y(R)) &ne; 1 , let B = -1 &times; B
+- If jacobi(y(R)) &ne; 1 , let B = -B
 - Let P = A<sub>10</sub> + ... + A<sub>k0</sub>
 - Let e = int(hash(bytes(x(R)) || bytes(P) || m)) mod n
-- Let A is Point
+- Let A be the point at infinity
 - For h = 1...k :
     - A = A + A<sub>u<sub>h</sub>0</sub>j<sup>0</sup> + ... + A<sub>u<sub>h</sub>(t-1)</sub>j<sup>t-1</sup>
 - Fail if sig<sub>u<sub>j</sub></sub>G &ne; B + eA
@@ -135,7 +137,7 @@ Each user(u<sub>i</sub> , i = 1...t) verifies signature received from user(u<sub
 
 ### Step 5
 
-Any user(u<sub>i</sub> , 1 &le; i &le; t) is signing :
+Anyone holding sig and who knows the predefined user order can produce a valid signature:
 
 - Let s = 0
     - For j = 1...t :

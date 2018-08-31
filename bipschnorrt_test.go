@@ -25,7 +25,7 @@ func TestThreshold(te *testing.T) {
 		users = append(users, user)
 	}
 	te.Logf("The number of users k. %d", k)
-	te.Logf("The number of collaborators t. %d", t)
+	te.Logf("The number of required signers t. %d", t)
 	te.Logf("The constant H refers to the generator. %x", H.Bytes())
 	te.Logf("The message m : %x", m)
 	te.Logf("Shared Secret / %fs", (time.Now().Sub(start)).Seconds())
@@ -83,9 +83,9 @@ func TestThreshold(te *testing.T) {
 		ts = append(ts, users[i].Idx())
 		users = append(users[:i], users[i+1:]...)
 	}
-	te.Logf("Collaborators : %+v", ts)
+	te.Logf("Signers : %+v", ts)
 	for _, user := range tusers {
-		user.SetCollaborators(ts)
+		user.SetSigners(ts)
 	}
 	te.Logf("Step1 / %fs", (time.Now().Sub(start)).Seconds())
 	for _, ui := range tusers {
