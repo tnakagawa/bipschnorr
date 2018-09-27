@@ -36,6 +36,9 @@ func NewPointForPub(pub []byte) *Point {
 	}
 	x := new(big.Int).SetBytes(pub[1:])
 	y := new(big.Int).ModSqrt(add(exp(x, big.NewInt(3)), big.NewInt(7)), p)
+	if y == nil {
+		return &Point{}
+	}
 	if (pub[0] == 0x02 && y.Bit(0) == 1) || (pub[0] == 0x03 && y.Bit(0) == 0) {
 		y = mod(sub(p, y), p)
 	}
