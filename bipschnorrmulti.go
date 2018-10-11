@@ -7,14 +7,15 @@ import (
 
 // Muser is user for multisignatures.
 type Muser struct {
-	i  int      // index of user
-	u  int      // number of users
-	d  *big.Int // secret key
-	m  []byte   // message
-	ps []*Point // public keys of all users
-	hs [][]byte // hash values of all users
-	rs []*Point // random points of all users
-	ss [][]byte // signs of all users
+	i  int        // index of user
+	u  int        // number of users
+	d  *big.Int   // secret key
+	m  []byte     // message
+	ps []*Point   // public keys of all users
+	mu []*big.Int // μ of all users
+	hs [][]byte   // hash values of all users
+	rs []*Point   // random points of all users
+	ss [][]byte   // signs of all users
 }
 
 // NewMultiUser returns Muser.
@@ -28,15 +29,17 @@ func NewMultiUser(i, u int, d *big.Int, m []byte) (*Muser, error) {
 	user.d = d
 	user.m = m
 	user.ps = make([]*Point, u)
+	user.mu = make([]*big.Int, u)
 	user.hs = make([][]byte, u)
 	user.rs = make([]*Point, u)
 	user.ss = make([][]byte, u)
+	user.ps[i-1] = pointMul(d, G)
 	return user, nil
 }
 
 // PublicKey returns the public key.
 func (u *Muser) PublicKey() *Point {
-	return pointMul(u.d, G)
+	return u.ps[u.i-1]
 }
 
 // SetPublicKey sets a public key of users.
@@ -45,6 +48,17 @@ func (u *Muser) SetPublicKey(i int, pubkey *Point) error {
 		return fmt.Errorf("illegal parameter")
 	}
 	u.ps[i-1] = pubkey
+	bs := []byte{}
+	for _, ps := range u.ps {
+		if ps == nil {
+			return nil
+		}
+		bs = append(bs, ps.Bytes()...)
+	}
+	c := hash(bs)
+	for i := range u.mu {
+		u.mu[i] = intbs(ll(c, big.NewInt(int64(i+1)).Bytes()))
+	}
 	return nil
 }
 
@@ -114,7 +128,7 @@ func (u *Muser) Sign() ([]byte, error) {
 		return nil, err
 	}
 	e := mod(intbs(hash(ll(bytes(x(R)), P.Bytes(), u.m))), n)
-	s := bytes(mod(add(k, mul(e, u.d)), n))
+	s := bytes(mod(add(k, mul(e, mul(u.mu[u.i-1], u.d))), n))
 	return s, nil
 }
 
@@ -154,7 +168,7 @@ func (u *Muser) CheckSign() error {
 		if sj.Cmp(n) >= 0 {
 			return fmt.Errorf("sign from user(%d) is over", j+1)
 		}
-		R := pointAdd(pointMul(sj, G), pointMul(me, Pj))
+		R := pointAdd(pointMul(sj, G), pointMul(mul(me, u.mu[j]), Pj))
 		if infinite(R) || x(R).Cmp(x(Rj)) != 0 {
 			return fmt.Errorf("fail to check sign")
 		}
@@ -202,15 +216,12 @@ func (u *Muser) sumR() (*Point, error) {
 
 // P returns public key for multisignature.
 func (u *Muser) P() (*Point, error) {
-	P := u.PublicKey()
+	P := &Point{}
 	for j, p := range u.ps {
-		if u.i == j+1 {
-			continue
-		}
 		if p == nil {
 			return nil, fmt.Errorf("not received public key from the user(%d)", j+1)
 		}
-		P = pointAdd(P, p)
+		P = pointAdd(P, pointMul(u.mu[j], p))
 	}
 	return P, nil
 }
